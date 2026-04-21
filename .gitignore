@@ -1,0 +1,39 @@
+#  Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Django #
+*.log
+*.pot
+*.pyc
+__pycache__
+db.sqlite3
+
+
+# project settings
+uptimehub
+tmp
+settings.py
+passenger_wsgi.py
+
+#static file
+images/
+media
+
+# migrations
+# Ignore all migration files in any app
+*/migrations/*
+*/migrations/*/**
+
+# Do not ignore the migrations folder itself and __init__.py file in any app
+!*/migrations/
+!*/migrations/__init__.py
+#IDE settings
+.idea
+README.md
+.git
