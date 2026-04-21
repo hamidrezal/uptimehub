@@ -1,52 +1,97 @@
 {% extends 'base_dashboard.html' %}
+{% load static %}
 
 {% block title %}مدیریت سرورها{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">مدیریت سرورها</h1>
-        <a href="{% url 'monitor:server_create' %}" class="px-4 py-2 bg-blue-500 text-white rounded-2xl hover:bg-blue-600">
-            <i class="fas fa-plus ml-1"></i> افزودن سرور
-        </a>
-    </div>
-    
-    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <table class="w-full">
-            <thead class="bg-gray-50 dark:bg-gray-900">
-                <tr>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500">نام</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500">آدرس</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500">نوع</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500">وضعیت</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500">عملیات</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                {% for server in servers %}
-                <tr>
-                    <td class="px-6 py-4">{{ server.name }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">{{ server.address }}</td>
-                    <td class="px-6 py-4">{{ server.get_monitor_type_display }}</td>
-                    <td class="px-6 py-4">
-                        {% if server.is_active %}
-                            <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">فعال</span>
-                        {% else %}
-                            <span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">غیرفعال</span>
-                        {% endif %}
-                    </td>
-                    <td class="px-6 py-4">
-                        <a href="{% url 'monitor:server_update' server.pk %}" class="text-blue-500 ml-3">ویرایش</a>
-                        <a href="{% url 'monitor:server_delete' server.pk %}" class="text-red-500">حذف</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">هیچ سروری وجود ندارد</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+
+
+ <div class="mb-8">
+            <div class="flex justify-between items-center flex-wrap gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <i class="fas fa-heartbeat text-blue-500 ml-2"></i>
+                        UptimeHUB
+                    </h1>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">مدیریت سرور ها</p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <a href="{% url 'monitor:dashboard' %}">
+                        <button class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm flex items-center gap-2">
+                        <i class="fas fa-sync-alt text-gray-400 text-xs" id="refreshIcon"></i>
+                        داشبورد
+                    </button>
+                    </a>
+                    <a href="{% url 'monitor:server_create' %}">
+                        <button class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm flex items-center gap-2">
+                        <i class="fas fa-sync-alt text-gray-400 text-xs" id="refreshIcon"></i>
+                        افزودن سرور
+                    </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 dark:bg-gray-900 border-b border-gray-100 dark:border-gray-700">
+                    <tr>
+                        <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 dark:text-gray-400">نام</th>
+                        <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 dark:text-gray-400">آدرس</th>
+                        <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 dark:text-gray-400">نوع</th>
+                        <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 dark:text-gray-400">وضعیت</th>
+                        <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 dark:text-gray-400">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                    {% for server in servers %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ server.name }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 font-mono">{{ server.address }}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs">
+                                {{ server.get_monitor_type_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if server.is_active %}
+                                <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs">
+                                    <i class="fas fa-check-circle text-xs ml-1"></i>فعال
+                                </span>
+                            {% else %}
+                                <span class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-full text-xs">
+                                    <i class="fas fa-ban text-xs ml-1"></i>غیرفعال
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex gap-3">
+                                <a href="{% url 'monitor:server_update' server.pk %}" class="text-blue-500 hover:text-blue-600 transition">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'monitor:server_delete' server.pk %}" class="text-red-500 hover:text-red-600 transition">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-gray-400 dark:text-gray-500">
+                            <i class="fas fa-database text-4xl mb-3 block"></i>
+                            هیچ سروری وجود ندارد
+                            <a href="{% url 'monitor:server_create' %}" class="block text-blue-500 mt-2 hover:underline">افزودن سرور جدید ←</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

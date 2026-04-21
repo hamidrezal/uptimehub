@@ -1,30 +1,108 @@
 {% extends 'base_dashboard.html' %}
+{% load static %}
 
 {% block title %}{% if form.instance.pk %}ویرایش سرور{% else %}افزودن سرور{% endif %}{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto px-4 py-8">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
-        <h1 class="text-xl font-bold mb-6">{% if form.instance.pk %}ویرایش سرور{% else %}افزودن سرور جدید{% endif %}</h1>
-        
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+
+
+ <div class="mb-8">
+            <div class="flex justify-between items-center flex-wrap gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <i class="fas fa-heartbeat text-blue-500 ml-2"></i>
+                        UptimeHUB
+                    </h1>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">{% if form.instance.pk %}ویرایش سرور{% else %}افزودن سرور جدید{% endif %}</p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <a href="{% url 'monitor:dashboard' %}">
+                        <button class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm flex items-center gap-2">
+                        <i class="fas fa-sync-alt text-gray-400 text-xs" id="refreshIcon"></i>
+                        داشبورد
+                    </button>
+                    </a>
+                     <a href="{% url 'monitor:server_list' %}">
+                        <button class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm flex items-center gap-2">
+                        <i class="fas fa-sync-alt text-gray-400 text-xs" id="refreshIcon"></i>
+                        سرور ها
+                    </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
+
+
         <form method="post">
             {% csrf_token %}
-            
+
             {% for field in form %}
             <div class="mb-4">
-                <label class="block text-sm font-medium mb-2">{{ field.label }}</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {{ field.label }}
+                    {% if field.field.required %}
+                        <span class="text-red-500">*</span>
+                    {% endif %}
+                </label>
                 {{ field }}
+                {% if field.help_text %}
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ field.help_text }}</p>
+                {% endif %}
                 {% if field.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                    {% for error in field.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                    {% endfor %}
                 {% endif %}
             </div>
             {% endfor %}
-            
+
             <div class="flex gap-3 mt-6">
-                <button type="submit" class="px-6 py-2 bg-blue-500 text-white rounded-2xl hover:bg-blue-600">ذخیره</button>
-                <a href="{% url 'monitor:server_list' %}" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-2xl hover:bg-gray-400">انصراف</a>
+                <button type="submit" class="px-6 py-2 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 transition">
+                    <i class="fas fa-save ml-1"></i>
+                    ذخیره
+                </button>
+                <a href="{% url 'monitor:server_list' %}" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-2xl hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                    <i class="fas fa-times ml-1"></i>
+                    انصراف
+                </a>
             </div>
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block js %}
+<script>
+    const monitorType = document.querySelector('#id_monitor_type');
+    const portField = document.querySelector('#id_port').closest('.mb-4');
+    const keywordField = document.querySelector('#id_expected_keyword').closest('.mb-4');
+
+    function toggleFields() {
+        const type = monitorType.value;
+
+        if (type === 'http' || type === 'tcp') {
+            portField.style.display = 'block';
+        } else {
+            portField.style.display = 'none';
+        }
+
+        if (type === 'http') {
+            keywordField.style.display = 'block';
+        } else {
+            keywordField.style.display = 'none';
+        }
+    }
+
+    if (monitorType) {
+        monitorType.addEventListener('change', toggleFields);
+        toggleFields();
+    }
+</script>
 {% endblock %}
