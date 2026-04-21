@@ -1,0 +1,52 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}مدیریت سرورها{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">مدیریت سرورها</h1>
+        <a href="{% url 'monitor:server_create' %}" class="px-4 py-2 bg-blue-500 text-white rounded-2xl hover:bg-blue-600">
+            <i class="fas fa-plus ml-1"></i> افزودن سرور
+        </a>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <table class="w-full">
+            <thead class="bg-gray-50 dark:bg-gray-900">
+                <tr>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500">نام</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500">آدرس</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500">نوع</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500">وضعیت</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500">عملیات</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                {% for server in servers %}
+                <tr>
+                    <td class="px-6 py-4">{{ server.name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ server.address }}</td>
+                    <td class="px-6 py-4">{{ server.get_monitor_type_display }}</td>
+                    <td class="px-6 py-4">
+                        {% if server.is_active %}
+                            <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">فعال</span>
+                        {% else %}
+                            <span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">غیرفعال</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        <a href="{% url 'monitor:server_update' server.pk %}" class="text-blue-500 ml-3">ویرایش</a>
+                        <a href="{% url 'monitor:server_delete' server.pk %}" class="text-red-500">حذف</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">هیچ سروری وجود ندارد</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

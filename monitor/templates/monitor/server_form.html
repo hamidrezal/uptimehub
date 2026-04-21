@@ -1,0 +1,30 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}{% if form.instance.pk %}ویرایش سرور{% else %}افزودن سرور{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+        <h1 class="text-xl font-bold mb-6">{% if form.instance.pk %}ویرایش سرور{% else %}افزودن سرور جدید{% endif %}</h1>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            {% for field in form %}
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            <div class="flex gap-3 mt-6">
+                <button type="submit" class="px-6 py-2 bg-blue-500 text-white rounded-2xl hover:bg-blue-600">ذخیره</button>
+                <a href="{% url 'monitor:server_list' %}" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-2xl hover:bg-gray-400">انصراف</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
