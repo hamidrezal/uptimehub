@@ -7,7 +7,7 @@ from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse_lazy
 from datetime import datetime
-
+from django.utils import timezone
 from .models import Server
 from .utils import check_server
 from .forms import ServerForm
@@ -35,7 +35,7 @@ class ServerStatusAPIView(View):
             'success': True,
             'servers': results,
             'total': len(results),
-            'timestamp': datetime.now().isoformat(),
+            'timestamp': timezone.now().isoformat(),
         })
 
 

@@ -2,6 +2,7 @@ import subprocess
 import requests
 import socket
 from datetime import datetime
+from django.utils import timezone
 
 
 def check_ping(host, timeout=5):
@@ -125,7 +126,7 @@ def check_server(server):
 
     try:
         server.last_status = status
-        server.last_check_time = datetime.now()
+        server.last_check_time = timezone.now()
         server.save(update_fields=['last_status', 'last_check_time'])
     except Exception:
         pass
