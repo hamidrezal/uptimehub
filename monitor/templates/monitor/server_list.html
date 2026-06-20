@@ -4,48 +4,213 @@
 {% block title %}مدیریت مانیتورها{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="mb-8 flex justify-between items-center flex-wrap gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white"><i class="fas fa-heartbeat text-blue-500 ml-2"></i>UptimeHUB</h1>
-            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">مدیریت مانیتورها</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <a class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm" href="{% url 'monitor:dashboard' %}">داشبورد</a>
-            <a class="px-4 py-2 bg-blue-500 text-white rounded-2xl shadow-sm" href="{% url 'monitor:server_create' %}">افزودن مانیتور</a>
-            <form method="post" action="{% url 'account:logout' %}">{% csrf_token %}<button class="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-2xl">خروج</button></form>
-        </div>
-    </div>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-slideIn">
 
-    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm">
+    <section class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-3">
+            <div class="relative w-9 h-9">
+                <div class="absolute inset-0 rounded-full border-2 border-teal"></div>
+                <div class="absolute inset-1.5 rounded-full bg-teal animate-pulse2"></div>
+            </div>
+
+            <div>
+                <h1 class="text-2xl font-bold text-white">
+                    UptimeHUB<span class="text-teal">.</span>
+                </h1>
+                <p class="text-slate2 text-sm mt-1">مدیریت مانیتورها</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+            <a href="{% url 'monitor:dashboard' %}"
+               class="px-4 py-2 bg-navy-700 border border-navy-600 rounded-xl text-slate2 hover:text-white hover:bg-navy-600 transition-colors text-sm flex items-center gap-2">
+                <i class="fas fa-chart-line text-xs text-teal"></i>
+                داشبورد
+            </a>
+
+            <a href="{% url 'monitor:server_create' %}"
+               class="px-4 py-2 bg-teal hover:bg-teal-400 text-navy rounded-xl text-sm font-bold transition-colors flex items-center gap-2">
+                <i class="fas fa-plus text-xs"></i>
+                افزودن مانیتور
+            </a>
+
+            <form method="post" action="{% url 'account:logout' %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="px-4 py-2 bg-navy-700 border border-navy-600 rounded-xl text-slate2 hover:text-white hover:bg-navy-600 transition-colors text-sm flex items-center gap-2">
+                    <i class="fas fa-sign-out-alt text-xs text-crimson"></i>
+                    خروج
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-navy-700 border border-navy-600 rounded-xl p-4">
+            <p class="text-slate2 text-xs uppercase tracking-wider mb-2">Total Monitors</p>
+            <p class="font-mono text-2xl font-bold text-white">{{ servers|length }}</p>
+        </div>
+
+        <div class="bg-navy-700 border border-navy-600 rounded-xl p-4">
+            <p class="text-slate2 text-xs uppercase tracking-wider mb-2">Operational</p>
+            <p class="font-mono text-2xl font-bold text-teal">
+                {% with up_count=0 %}
+                    {% for server in servers %}
+                        {% if server.last_status %}
+                            {% if forloop.first %}{% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+                UP
+            </p>
+            <p class="text-xs text-slate2 mt-1">بر اساس آخرین وضعیت ثبت‌شده</p>
+        </div>
+
+        <div class="bg-navy-700 border border-navy-600 rounded-xl p-4">
+            <p class="text-slate2 text-xs uppercase tracking-wider mb-2">Down</p>
+            <p class="font-mono text-2xl font-bold text-crimson">DOWN</p>
+            <p class="text-xs text-slate2 mt-1">مانیتورهای دارای خطا</p>
+        </div>
+
+        <div class="bg-navy-700 border border-navy-600 rounded-xl p-4">
+            <p class="text-slate2 text-xs uppercase tracking-wider mb-2">Check Engine</p>
+            <div class="flex items-center gap-2">
+                <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal"></span>
+                </span>
+                <p class="font-mono text-lg font-bold text-teal">ACTIVE</p>
+            </div>
+            <p class="text-xs text-slate2 mt-1">Realtime monitoring</p>
+        </div>
+    </section>
+
+    <section class="bg-navy-700 border border-navy-600 rounded-xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-navy-600 flex items-center justify-between flex-wrap gap-3">
+            <div>
+                <h2 class="text-sm font-bold text-white">Monitor Status</h2>
+                <p class="text-xs text-slate2 mt-1">لیست کامل مانیتورها، آدرس‌ها و آخرین وضعیت ثبت‌شده</p>
+            </div>
+
+            <div class="flex items-center gap-3 text-xs text-slate2">
+                <span class="flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-teal"></span>
+                    UP
+                </span>
+                <span class="flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-crimson"></span>
+                    DOWN
+                </span>
+            </div>
+        </div>
+
         <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50 dark:bg-gray-900 border-b border-gray-100 dark:border-gray-700">
+            <table class="w-full min-w-[900px]">
+                <thead class="bg-navy-800 border-b border-navy-600">
                     <tr>
-                        <th class="px-6 py-4 text-right text-xs font-medium text-gray-500">نام</th>
-                        <th class="px-6 py-4 text-right text-xs font-medium text-gray-500">آدرس</th>
-                        <th class="px-6 py-4 text-right text-xs font-medium text-gray-500">نوع</th>
-                        <th class="px-6 py-4 text-right text-xs font-medium text-gray-500">Interval</th>
-                        <th class="px-6 py-4 text-right text-xs font-medium text-gray-500">آخرین وضعیت</th>
-                        <th class="px-6 py-4 text-right text-xs font-medium text-gray-500">عملیات</th>
+                        <th class="px-6 py-4 text-right text-xs font-bold text-slate2 uppercase tracking-wider">نام</th>
+                        <th class="px-6 py-4 text-right text-xs font-bold text-slate2 uppercase tracking-wider">آدرس</th>
+                        <th class="px-6 py-4 text-right text-xs font-bold text-slate2 uppercase tracking-wider">نوع</th>
+                        <th class="px-6 py-4 text-right text-xs font-bold text-slate2 uppercase tracking-wider">Interval</th>
+                        <th class="px-6 py-4 text-right text-xs font-bold text-slate2 uppercase tracking-wider">آخرین وضعیت</th>
+                        <th class="px-6 py-4 text-right text-xs font-bold text-slate2 uppercase tracking-wider">عملیات</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+
+                <tbody class="divide-y divide-navy-600">
                     {% for server in servers %}
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ server.name }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500 font-mono">{{ server.address }}{% if server.port %}:{{ server.port }}{% endif %}</td>
-                        <td class="px-6 py-4"><span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-xs">{{ server.get_monitor_type_display }}</span></td>
-                        <td class="px-6 py-4 text-sm text-gray-500">{{ server.check_interval }}s</td>
-                        <td class="px-6 py-4">{% if server.last_status %}<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">UP</span>{% else %}<span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">DOWN</span>{% endif %}</td>
-                        <td class="px-6 py-4"><div class="flex gap-3"><a href="{% url 'monitor:server_update' server.pk %}" class="text-blue-500"><i class="fas fa-edit"></i></a><a href="{% url 'monitor:server_delete' server.pk %}" class="text-red-500"><i class="fas fa-trash-alt"></i></a></div></td>
-                    </tr>
+                        <tr class="hover:bg-navy-600/60 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    {% if server.last_status %}
+                                        <span class="relative flex h-2.5 w-2.5">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal opacity-60"></span>
+                                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal"></span>
+                                        </span>
+                                    {% else %}
+                                        <span class="w-2.5 h-2.5 rounded-full bg-crimson"></span>
+                                    {% endif %}
+
+                                    <div>
+                                        <p class="font-bold text-white text-sm">{{ server.name }}</p>
+                                        <p class="text-xs text-slate2 mt-0.5">Monitor ID #{{ server.pk }}</p>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="px-6 py-4">
+                                <span class="font-mono text-sm text-slate2-light">
+                                    {{ server.address }}{% if server.port %}:{{ server.port }}{% endif %}
+                                </span>
+                            </td>
+
+                            <td class="px-6 py-4">
+                                <span class="px-2.5 py-1 bg-navy-500 border border-navy-600 rounded-full text-xs text-slate2 font-mono">
+                                    {{ server.get_monitor_type_display }}
+                                </span>
+                            </td>
+
+                            <td class="px-6 py-4">
+                                <span class="font-mono text-sm text-slate2">{{ server.check_interval }}s</span>
+                            </td>
+
+                            <td class="px-6 py-4">
+                                {% if server.last_status %}
+                                    <span class="px-2.5 py-1 bg-teal/10 text-teal border border-teal/20 rounded-full text-xs font-bold">
+                                        UP
+                                    </span>
+                                {% else %}
+                                    <span class="px-2.5 py-1 bg-crimson/10 text-crimson border border-crimson/20 rounded-full text-xs font-bold">
+                                        DOWN
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <a href="{% url 'monitor:server_update' server.pk %}"
+                                       class="w-9 h-9 rounded-lg bg-navy-600 border border-navy-500 text-slate2 hover:text-teal hover:border-teal/40 flex items-center justify-center transition-colors"
+                                       title="ویرایش">
+                                        <i class="fas fa-edit text-xs"></i>
+                                    </a>
+
+                                    <a href="{% url 'monitor:server_delete' server.pk %}"
+                                       class="w-9 h-9 rounded-lg bg-crimson/10 border border-crimson/20 text-crimson hover:bg-crimson hover:text-white flex items-center justify-center transition-colors"
+                                       title="حذف">
+                                        <i class="fas fa-trash-alt text-xs"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                     {% empty %}
-                    <tr><td colspan="6" class="px-6 py-12 text-center text-gray-400">هنوز مانیتوری ثبت نشده است. <a href="{% url 'monitor:server_create' %}" class="text-blue-500">افزودن مانیتور</a></td></tr>
+                        <tr>
+                            <td colspan="6" class="px-6 py-16 text-center">
+                                <div class="max-w-sm mx-auto">
+                                    <div class="relative w-16 h-16 mx-auto mb-4">
+                                        <div class="absolute inset-0 rounded-full border border-navy-500"></div>
+                                        <div class="absolute inset-3 rounded-full bg-navy-500 flex items-center justify-center">
+                                            <i class="fas fa-server text-slate2 text-lg"></i>
+                                        </div>
+                                    </div>
+
+                                    <h3 class="text-white font-bold mb-2">هنوز مانیتوری ثبت نشده است</h3>
+                                    <p class="text-sm text-slate2 leading-7 mb-5">
+                                        اولین مانیتور را اضافه کن تا سیستم بالاخره کاری برای انجام دادن داشته باشد.
+                                    </p>
+
+                                    <a href="{% url 'monitor:server_create' %}"
+                                       class="inline-flex items-center gap-2 px-5 py-2.5 bg-teal hover:bg-teal-400 text-navy rounded-xl text-sm font-bold transition-colors">
+                                        <i class="fas fa-plus text-xs"></i>
+                                        افزودن مانیتور
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-    </div>
-</div>
+    </section>
+
+</main>
 {% endblock %}
