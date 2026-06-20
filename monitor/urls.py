@@ -6,6 +6,7 @@ app_name = 'monitor'
 urlpatterns = [
     path('', views.DashboardView.as_view(), name='dashboard'),
     path('api/check/', views.ServerStatusAPIView.as_view(), name='api_check'),
+    path('heartbeat/<str:token>/', views.HeartbeatView.as_view(), name='heartbeat'),
     path('servers/', views.ServerListView.as_view(), name='server_list'),
     path('servers/create/', views.ServerCreateView.as_view(), name='server_create'),
     path('servers/<int:pk>/update/', views.ServerUpdateView.as_view(), name='server_update'),

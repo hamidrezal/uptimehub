@@ -57,7 +57,7 @@ function renderServersList(servers) {
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-12 text-center">
                 <i class="fas fa-database text-gray-300 dark:text-gray-600 text-5xl mb-4"></i>
                 <h3 class="text-gray-600 dark:text-gray-400 font-medium mb-2">هیچ سروری تنظیم نشده</h3>
-                <a href="/admin/monitor/server/add/" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-2xl text-sm hover:bg-blue-600">➕ افزودن سرور</a>
+                <a href="/servers/create/" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-2xl text-sm hover:bg-blue-600">➕ افزودن سرور</a>
             </div>
         `;
         return;
@@ -109,7 +109,7 @@ function renderServersList(servers) {
 }
 
 function getIcon(type) {
-    const icons = { 'ping': 'fa-network-wired', 'http': 'fa-globe', 'tcp': 'fa-plug', 'dns': 'fa-dns' };
+    const icons = { 'ping': 'fa-network-wired', 'http': 'fa-globe', 'tcp': 'fa-plug', 'dns': 'fa-sitemap', 'ssl': 'fa-lock', 'heartbeat': 'fa-heartbeat', 'api': 'fa-code', 'domain': 'fa-calendar-check' };
     return icons[type] || 'fa-server';
 }
 
@@ -126,19 +126,73 @@ async function fetchStatus() {
     isRefreshing = true;
 
     try {
-        const response = await axios.get('/api/check/', { timeout: 10000 });
+        const response = await axios.get('/api/check/', { timeout: 30000 }); // افزایش timeout به 30 ثانیه
+
         if (response.data.success) {
             currentServers = response.data.servers;
             renderStats(currentServers);
             renderServersList(currentServers);
             lastUpdateTimeEl.innerText = new Date().toLocaleTimeString('fa-IR');
+        } else {
+            // اگر API موفق نبود ولی خطای شبکه نخورده
+            console.warn('API returned not success');
+            if (currentServers.length === 0) {
+                serversContainer.innerHTML = `<div class="bg-white dark:bg-gray-800 rounded-2xl border p-8 text-center"><p class="text-gray-400">هیچ داده‌ای دریافت نشد</p></div>`;
+            }
         }
     } catch (error) {
         console.error('API Error:', error);
-        serversContainer.innerHTML = `<div class="bg-white dark:bg-gray-800 rounded-2xl border border-red-200 p-8 text-center"><i class="fas fa-exclamation-triangle text-red-400 text-4xl mb-3"></i><p class="text-gray-600">خطا در ارتباط با سرور</p><button onclick="fetchStatus()" class="mt-3 text-blue-500">تلاش مجدد</button></div>`;
+
+        // اگر قبلاً سروری داشتیم، آن را نشان بده (وضعیت قبلی)
+        if (currentServers.length > 0) {
+            // فقط یک نوتیفیکیشن کوچک نشان بده، نه خطای کامل
+            showTemporaryMessage('بروزرسانی خودکار با خطا مواجه شد، نمایش وضعیت قبلی', 'warning');
+            // وضعیت قبلی را نشان بده
+            renderStats(currentServers);
+            renderServersList(currentServers);
+        } else {
+            // فقط اگر هیچ داده‌ای نداریم، خطای کامل نشان بده
+            serversContainer.innerHTML = `<div class="bg-white dark:bg-gray-800 rounded-2xl border border-red-200 p-8 text-center">
+                <i class="fas fa-exclamation-triangle text-red-400 text-4xl mb-3"></i>
+                <p class="text-gray-600">خطا در ارتباط با سرور</p>
+                <button onclick="fetchStatus()" class="mt-3 text-blue-500">تلاش مجدد</button>
+            </div>`;
+        }
     } finally {
         isRefreshing = false;
     }
+}
+
+// تابع نمایش پیام موقت
+function showTemporaryMessage(message, type = 'info') {
+    // ایجاد یک المنت پیام
+    let msgDiv = document.getElementById('tempMessage');
+    if (!msgDiv) {
+        msgDiv = document.createElement('div');
+        msgDiv.id = 'tempMessage';
+        msgDiv.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;padding:10px 20px;border-radius:12px;font-size:13px;transition:opacity 0.3s';
+        document.body.appendChild(msgDiv);
+    }
+
+    // تنظیم رنگ
+    const colors = {
+        warning: 'bg-yellow-500 text-white',
+        error: 'bg-red-500 text-white',
+        info: 'bg-blue-500 text-white',
+        success: 'bg-green-500 text-white'
+    };
+
+    msgDiv.className = colors[type] || colors.info;
+    msgDiv.innerHTML = `<i class="fas fa-info-circle ml-2"></i>${message}`;
+    msgDiv.style.opacity = '1';
+
+    // بعد از 3 ثانیه محو شود
+    setTimeout(() => {
+        msgDiv.style.opacity = '0';
+        setTimeout(() => {
+            if (msgDiv.parentNode) msgDiv.remove();
+        }, 300);
+    }, 3000);
 }
 
 function setFilter(filter) {
